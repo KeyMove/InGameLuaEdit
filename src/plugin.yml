@@ -1,0 +1,6 @@
+name: InGameLuaEdit
+main: com.github.KeyMove.InGameLuaEdit
+version: 1.0.0
+
+commands:
+    ie:
