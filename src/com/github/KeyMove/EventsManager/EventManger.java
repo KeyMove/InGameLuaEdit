@@ -33,6 +33,12 @@ public class EventManger implements Listener{
             return g_EventsMap;
     }
     
+    public void ClearEvent(){
+        for(List<LuaFunction> lf:EventList){
+            lf.clear();
+        }
+    }
+    
     public void CallEvent(int EventId,Object event){
         if(EventId>Count)return;
         List<LuaFunction> list=EventList[EventId];

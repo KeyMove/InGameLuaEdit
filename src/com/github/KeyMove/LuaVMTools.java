@@ -24,13 +24,11 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import static org.luaj.vm2.LuaValue.NIL;
 import org.luaj.vm2.Varargs;
-import org.luaj.vm2.compiler.LuaC;
 import org.luaj.vm2.lib.VarArgFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.CoerceLuaToJava;
@@ -120,6 +118,10 @@ public class LuaVMTools extends LuaTable{
             g_Plugin.getServer().getScheduler().cancelTask(id);
         }
         g_RunnableList.clear();
+        for(PacketHookBase h:g_PacketHook.values()){
+            h.unregister();
+        }
+        g_PacketHook.clear();
     }
     
     public LuaVMTools(Plugin plugin,EventManger eventManger) {
@@ -200,7 +202,7 @@ public class LuaVMTools extends LuaTable{
                     return NIL;
                 }
             });
-            set("PacketIn", new VarArgFunction() {
+            set("PacketEvent", new VarArgFunction() {
                 @Override
                 public Varargs invoke(Varargs args) {
                     if(args.isfunction(2)){
@@ -228,6 +230,27 @@ public class LuaVMTools extends LuaTable{
                     else{
                         out.print("注册事件失败");
                     }
+                    return NIL;
+                }
+            });
+            set("unPacketEvent", new VarArgFunction() {
+                @Override
+                public Varargs invoke(Varargs args) {
+                        Player p;
+                        if(args.isstring(1)){
+                            p=g_Plugin.getServer().getPlayer(args.tojstring(1));
+                        }
+                        else{
+                            p=(Player) CoerceLuaToJava.coerce(args.arg(1), Player.class);
+                        }
+                        if(p!=null)
+                        {
+                            if(g_PacketHook.containsKey(p))
+                            {
+                                g_PacketHook.get(p).unregister();
+                            }
+                        }
+                   
                     return NIL;
                 }
             });

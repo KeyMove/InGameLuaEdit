@@ -7,8 +7,9 @@
 package com.github.KeyMove;
 
 import com.github.KeyMove.EventsManager.EventManger;
-import static com.github.KeyMove.EventsManager.EventsBuild.GetEvents;
 import com.github.KeyMove.EventsManager.EventsBuild;
+import static com.github.KeyMove.EventsManager.EventsBuild.GetEvents;
+import com.github.KeyMove.EventsManager.Tools.Ref;
 import java.io.File;
 import static java.lang.System.out;
 import lib.org.luaj.vm2.lib.jse.JsePlatform;
@@ -16,10 +17,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.compiler.LuaC;
+import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 /**
  *
@@ -61,6 +64,7 @@ public class InGameLuaEdit extends JavaPlugin{
         String obc="org.bukkit.craftbukkit."+ver;
         String nms="net.minecraft.server."+ver;
         LuaVM.set("Tools", LuaTools);
+        LuaVM.set("Ref", CoerceJavaToLua.coerce(Ref.class));
         LuaVM.set("OBCPATH",LuaValue.valueOf(obc));
         LuaVM.set("NMSPATH",LuaValue.valueOf(nms));
         LoadLuaFile();
@@ -80,6 +84,15 @@ public class InGameLuaEdit extends JavaPlugin{
         InitLuaVM();
         //out.print(Bukkit.class.getResource("event").getFile().replaceAll("%20", " "));
     }
+
+    @Override
+    public void onDisable() {
+        HandlerList.unregisterAll(eventManger);
+        eventManger.ClearEvent();
+        LuaVMTools.ReInit();
+    }
+    
+    
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -88,6 +101,8 @@ public class InGameLuaEdit extends JavaPlugin{
             {
                 switch(args[0]){
                     case "restart":
+                        //HandlerList.unregisterAll(eventManger);
+                        eventManger.ClearEvent();
                         LuaVMTools.ReInit();
                         InitLuaVM();
                         break;
