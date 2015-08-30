@@ -105,6 +105,6 @@ public class EventManger implements Listener{
         for(int i=0;i<Count+1;i++){
             EventList[i]=new ArrayList<>();
         }
-        out.print("加载了"+Count+"个事件!");
+        out.print("加载了"+(Count+1)+"个事件!");
     }
 }

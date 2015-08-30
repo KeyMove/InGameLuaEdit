@@ -183,6 +183,15 @@ final public class 类解析器 {
                     }
         }
     }
+    
+    public List<String> 获取所有UTF8常量(){
+        List<String> 常量列表=new ArrayList<>();
+        for(String 常量值:UTF8常量表.keySet()){
+            常量列表.add(常量值);
+        }
+        return  常量列表;
+    }
+    
     public int 选择或添加UTF8常量(String 常量名称){
         if(UTF8常量表.containsKey(常量名称)){
             return UTF8常量表.get(常量名称);
@@ -198,13 +207,26 @@ final public class 类解析器 {
     public boolean 替换指定UTF8常量(String 常量名称,String 新常量名称){
         if(UTF8常量表.containsKey(新常量名称))return false;
         if(UTF8常量表.containsKey(常量名称)){
+            int id=UTF8常量表.get(常量名称);
+            UTF8常量 UTF8值=(UTF8常量)常量池.get(id);
+            UTF8值.字符串=新常量名称;
+            UTF8值.字符串长度=新常量名称.length();
+            常量池.set(id, UTF8值);
             UTF8常量表.put(新常量名称, UTF8常量表.get(常量名称));
-            int id=常量池.indexOf(常量名称);
-            常量池.set(id, 新常量名称);
             return true;
         }
         return false;
     }
+    
+    public String 获取UTF8常量(int 索引){
+        if(常量池.size()<索引)return "";
+        常量 c=(常量)常量池.get(索引);
+        if(c.类型==常量类型.UTF8){
+            return ((UTF8常量)c).字符串;
+        }
+        return null;
+    }
+    
     public int 添加常量(Object o){
         if(o instanceof 常量)
         {
@@ -228,6 +250,16 @@ final public class 类解析器 {
         }
         return null;
     }
+    
+    public 方法[] 获取全部方法(){
+        方法[] 方法列表=new 方法[方法数量];
+        for(int i=0;i<方法池.size();i++){
+            方法列表[i]=方法池.get(i);
+        }
+        return 方法列表;
+    }
+    
+    
         public Object 从表中寻找属性(String 名称,List<Object> 属性值){
             for(Object o:属性值){
                 if(o instanceof 属性类型){
@@ -595,6 +627,10 @@ final public class 类解析器 {
         
         public void 设置方法名称(String s){
             this.名称索引=选择或添加UTF8常量(s);
+        }
+        
+        public String 获取方法名称(){
+            return 获取UTF8常量(this.名称索引);
         }
         
         public void 设置方法返回值与参数(Type type,Type... types){
@@ -983,7 +1019,7 @@ final public class 类解析器 {
             for(int i=0;i<len;i++)
                 try {
                     c<<=8;
-                    c|=(byte) fs.read();
+                    c|=((byte) fs.read())&0xff;
                 } catch (IOException ex) {
                     Logger.getLogger(类解析器.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -994,7 +1030,7 @@ final public class 类解析器 {
             for(int i=0;i<len;i++)
                 try {
                     c<<=8;
-                    c|=(byte) fs.read();
+                    c|=((byte) fs.read())&0xff;
                 } catch (IOException ex) {
                     Logger.getLogger(类解析器.class.getName()).log(Level.SEVERE, null, ex);
                 }
