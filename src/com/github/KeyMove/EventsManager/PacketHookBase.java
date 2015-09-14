@@ -18,7 +18,7 @@ import org.luaj.vm2.LuaFunction;
  */
 public class PacketHookBase {
     public List<LuaFunction> CallBack=new ArrayList<>();
-    
+    public Player savePlayer;
     public void HookPlayer(Player p){
         out.print("233");
     }

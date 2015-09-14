@@ -106,6 +106,18 @@ public class InGameLuaEdit extends JavaPlugin{
                         LuaVMTools.ReInit();
                         InitLuaVM();
                         break;
+                    case "rebuild":
+                        HandlerList.unregisterAll(eventManger);
+                        eventManger.ClearEvent();
+                        LuaVMTools.ReInit();
+                        eventManger=GetEvents(this);
+                        eventManger.Setup(this);
+                        LuaTools=new LuaVMTools(this, eventManger);
+                        getServer().getPluginManager().registerEvents(eventManger, this);
+                        EventsBuild.GetPacketIn(this);
+                        InitLuaVM();
+                        out.print("rebuild OK!");
+                        break;
                 }
             }
         }

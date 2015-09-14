@@ -22,9 +22,9 @@ import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 public class PacketHook extends PacketHookBase implements PacketListenerPlayIn{
     
     PlayerConnection OldListener;
-    Player p;
     @Override
     public void HookPlayer(Player p){
+        savePlayer=p;
         OldListener=((CraftPlayer)p).getHandle().playerConnection;
         OldListener.networkManager.a(this);
     }
@@ -42,7 +42,7 @@ public class PacketHook extends PacketHookBase implements PacketListenerPlayIn{
         Name=Name.substring(Name.lastIndexOf('.')+1);
         //out.print("Input Packet:"+Name);
         for(LuaFunction function:CallBack){
-            if(!function.call(CoerceJavaToLua.coerce(Name),CoerceJavaToLua.coerce(p),CoerceJavaToLua.coerce(e)).isnil())
+            if(!function.call(CoerceJavaToLua.coerce(Name),CoerceJavaToLua.coerce(savePlayer),CoerceJavaToLua.coerce(e)).isnil())
             {
                 return false;
             }

@@ -34,7 +34,9 @@ public class EventsBuild {
     
     static List<String> UseEventsList=new ArrayList<>();
     static List<String> PacketInList=new ArrayList<>();
-    static Class PacketHookClass=null;
+    static Class PacketHookClass=PacketHookBase.class;
+    static boolean isPacketLoad=false;
+    static String PacketInListenerName;
     public static Class LoadClassFile(String filepath,ClassLoader cloader){
         Class desClass=null;
         String classname=filepath.substring(filepath.lastIndexOf("\\")+1, filepath.lastIndexOf("."));
@@ -120,28 +122,15 @@ public class EventsBuild {
         String ver=Bukkit.getServer().getClass().getPackage().getName();
         ver=ver.substring(ver.lastIndexOf('.')+1);
         String path=null;
-        String ListenerName="";
-        for(String v:PacketInList)
-            if(v.contains("Listener"))
-            {
-                ListenerName=v;
-                out.print(v);
-                break;
-            }
-        if("".equalsIgnoreCase(ListenerName))
-        {
-            out.print("未能注册包");
-            return;
-        }
         for(String value:utf8list){
             String newpath;
             if(value.contains("net/minecraft/server/"))
             {
                 if(value.contains("Listener")&&!value.contains(";"))
                 {
-                        builder.替换指定UTF8常量(value,ListenerName);
+                        builder.替换指定UTF8常量(value,PacketInListenerName);
                         out.print(value);
-                        out.print(ListenerName);
+                        out.print(PacketInListenerName);
                         continue;
                 }
                 if(path!=null){
@@ -239,7 +228,6 @@ public class EventsBuild {
             }
             SaveFile(plugin, "PacketData.dat", "Ext\\PacketHook.class");
         }
-        PacketInList=getPacketInClass();
         AddAllPacketEvent(f);
     }
     
@@ -279,6 +267,19 @@ public class EventsBuild {
     
     public static void GetPacketIn(Plugin plugin){
         File f=new File(plugin.getDataFolder(),"Ext\\PacketHook.class");
+        PacketInList=getPacketInClass();
+        for(String v:PacketInList)
+            if(v.contains("Listener"))
+            {
+                isPacketLoad=true;
+                PacketInListenerName=v;
+                out.print(v);
+                break;
+            }
+        if(!isPacketLoad){
+            out.print("未能注册包");
+            return;
+        }
         if(!f.exists()){
             BuildPacketInFile(plugin);
         }

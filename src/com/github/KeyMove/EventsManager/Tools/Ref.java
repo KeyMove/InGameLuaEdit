@@ -409,4 +409,44 @@ public class Ref {
         return oc;
     }
     
+    public static Field[] Fields(Class s){
+        Field[] list=s.getDeclaredFields();
+        return list;
+    }
+    
+    public static Field[] Fields(String classname){
+        return Fields(getClassName(classname));
+    }
+    
+    public static Method[] Methods(Class s){
+        Method[] list=s.getDeclaredMethods();
+        return list;
+    }
+    
+    public static Method[] Methods(String classname){
+       return Methods(getClassName(classname));
+    }
+    
+    public static Constructor[] Constructors(Class s){
+        Constructor[] list=s.getDeclaredConstructors();
+        return list;
+    }
+    
+    public static Constructor[] Constructors(String classname){
+        return Constructors(getClassName(classname));
+    }
+    
+    public static Object Invoke(Method m,Object obj,Object[] list){
+        try {
+            return m.invoke(obj, list);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            out.print(ex);
+        }
+        return null;
+    }
+    
+    public static Class SuperClass(Class class1){
+        return class1.getSuperclass();
+    }
+    
 }
