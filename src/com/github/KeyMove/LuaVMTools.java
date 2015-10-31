@@ -64,7 +64,7 @@ public class LuaVMTools extends LuaTable{
         }
         @Override
         public boolean execute(CommandSender cs, String string, String[] strings) {
-            this.LuaMethod.call(CoerceJavaToLua.coerce(cs));
+            this.LuaMethod.call(CoerceJavaToLua.coerce(cs),CoerceJavaToLua.coerce(strings));
             return true;
         }
     }

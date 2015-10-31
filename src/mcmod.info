@@ -1,0 +1,16 @@
+[
+{
+  "modid": "InGameLuaEdit",
+  "name": "InGameLuaEdit",
+  "description": "在游戏中编写与执行lua代码",
+  "version": "1.6+",
+  "mcversion": "1.7.10",
+  "url": "https://github.com/KeyMove/InGameLuaEdit",
+  "updateUrl": "",
+  "authorList": ["KeyMove"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

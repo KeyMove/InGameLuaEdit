@@ -11,6 +11,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,14 +27,16 @@ public class Ref {
     static Map<Class,Map<String,Method>> g_Methodmap=new HashMap<>();
     static Map<Class,Map<String,Field>> g_Fieldmap=new HashMap<>();
     static Map<Class,Map<Integer,Constructor>> g_ConstructorMap=new HashMap<>();
+    static ClassLoader g_loader=Ref.class.getClassLoader();
     
-    public static Class getClassName(String name){
+    public static Class Class(String name){
         Class t=null;
         if(g_Classmap.containsKey(name)){
             return g_Classmap.get(name);
         }
         try {
-            t = Class.forName(name);
+            //t = Class.forName(name);
+            t=Class.forName(name, true, g_loader);
             g_Classmap.put(name, t);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Ref.class.getName()).log(Level.SEVERE, null, ex);
@@ -43,9 +46,70 @@ public class Ref {
     
     public static Object getNewClass(String name){
         try {
-            return getClassName(name).newInstance();
+            return Class(name).newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
             Logger.getLogger(Ref.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    public static Object New(Class obj,Object[] list){
+        Class[] build;
+        if(list.length==0){
+            build=null;
+        }
+        else{
+            build=new Class[list.length];
+            for(int i=0;i<list.length;i++){
+                build[i]=list[i].getClass();
+            }
+        }
+        try {
+            if(build==null)
+                return obj.newInstance();
+            return obj.getConstructor(build).newInstance(list);
+        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            Logger.getLogger(Ref.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    public static Object New(String name,Object[] list){
+        Class[] build;
+        Class obj=Class(name);
+        if(obj==null)return null;
+        if(list.length==0){
+            build=null;
+        }
+        else{
+            build=new Class[list.length];
+            for(int i=0;i<list.length;i++){
+                build[i]=list[i].getClass();
+            }
+        }
+        try {
+            if(build==null)
+                return obj.newInstance();
+            return obj.getConstructor(build).newInstance(list);
+        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            Logger.getLogger(Ref.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    public static Class[] ClassArray(String name,int len){
+        Class s=Class(name);
+        if(s!=null)
+        {
+            return (java.lang.Class[]) java.lang.reflect.Array.newInstance(s, len);
+        }
+        return null;
+    }
+    
+    public static Class[] ClassArray(Class s,int len){
+        if(s!=null)
+        {
+            return (java.lang.Class[]) java.lang.reflect.Array.newInstance(s, len);
         }
         return null;
     }
@@ -53,7 +117,7 @@ public class Ref {
     public static Object getMembers(String name,Class c,Object o){
         Object oc=null;
         if(!g_Classmap.containsKey(c.getName()))
-            c=getClassName(c.getName());
+            c=Class(c.getName());
         Map<String,Field> p;
         Field f=null;
         if(!g_Fieldmap.containsKey(c)){
@@ -78,7 +142,7 @@ public class Ref {
         Object oc=null;
         Class c=o.getClass();
         if(!g_Classmap.containsKey(c.getName()))
-            c=getClassName(c.getName());
+            c=Class(c.getName());
         Map<String,Field> p;
         Field f=null;
         if(!g_Fieldmap.containsKey(c)){
@@ -101,7 +165,7 @@ public class Ref {
     
     public static void setMembers(String name,Class c,Object o,Object in){
         if(!g_Classmap.containsKey(c.getName()))
-            c=getClassName(c.getName());
+            c=Class(c.getName());
         Map<String,Field> p;
         Field f=null;
         if(!g_Fieldmap.containsKey(c)){
@@ -124,7 +188,7 @@ public class Ref {
     public static void setMembers(String name,Object o,Object in){
         Class c=o.getClass();
         if(!g_Classmap.containsKey(c.getName()))
-            c=getClassName(c.getName());
+            c=Class(c.getName());
         Map<String,Field> p;
         Field f=null;
         if(!g_Fieldmap.containsKey(c)){
@@ -145,7 +209,7 @@ public class Ref {
     }
     
     public static Constructor getConstructor(String name,int id,Object[] type){
-        Class c=getClassName(name);
+        Class c=Class(name);
         Map<Integer,Constructor> p=null;
         Class[] list=null;
         if(type.length!=0)
@@ -192,7 +256,7 @@ public class Ref {
     }
     
     public static Object NewClass(String name,int id,Object[] type){
-        Class c=getClassName(name);
+        Class c=Class(name);
         Constructor ct=getConstructor(name,id, type);
         try {
             //for(Object o:type)
@@ -210,7 +274,7 @@ public class Ref {
         Class[] tp;
         Object oc=null;
         if(!g_Classmap.containsKey(c.getName()))
-            c=getClassName(c.getName());
+            c=Class(c.getName());
         Map<String,Method> p;
         Method f=null;
         if(!g_Methodmap.containsKey(c)){
@@ -255,6 +319,20 @@ public class Ref {
         return oc;
     }
     public static Class<?> type[]={short.class,int.class,long.class,double.class,float.class};
+    public Class getType(String Name){
+        switch(Format.valueOf(Name)){
+            case Object:return Object.class;
+                case Double:return double.class;
+                case Float:return float.class;
+                case Short:return short.class;
+                case Byte:return byte.class;
+                case Char:return char.class;
+                case Long:return long.class;
+                case Int:return int.class;
+                case Bool:return boolean.class;
+        }
+        return null;
+    }
     public static void test(){
         out.print(int.class);
         out.print(double.class);
@@ -280,21 +358,57 @@ public class Ref {
         return iv;
     }
     
-    public static Object toFloat(double v){
-        return (float)v;
+    public enum Format{
+        Object,
+        Double,
+        Float,
+        Short,
+        Byte,
+        Char,
+        Long,
+        Int,
+        Bool,
     }
-    public static Object toByte(int v){
-        return (Byte)(byte)v;
+    
+    public static Object[] Objects(Object[] list){
+        Object[] out=null;
+        Format type=Format.Object;
+        if(list.length!=0)
+            out=new Object[list.length];
+        int count=0;
+        for(Object obj:list){
+            if(obj instanceof Format){
+                type=(Format)obj;
+                continue;
+            }
+            switch(type){
+                case Object:out[count++]=obj;break;
+                case Double:out[count++]=(double)obj;break;
+                case Float:out[count++]=(float)obj;break;
+                case Short:out[count++]=(short)obj;break;
+                case Byte:out[count++]=(byte)obj;break;
+                case Char:out[count++]=(char)obj;break;
+                case Long:out[count++]=(long)obj;break;
+                case Int:out[count++]=(int)obj;break;
+                case Bool:out[count++]=(boolean)obj;break;
+            }
+        }
+        return out;
     }
-    public static Object toLong(int v){
-        return (long)v;
+    
+    @Deprecated
+    public interface Data{
+        int Object=-1;
+        int Double=0;
+        int Short=1;
+        int Byte=2;
+        int Char=3;
+        int Long=4;
+        int Int=5;
+        int Bool=6;
     }
-    public static Object toShort(int v){
-        return (short)v;
-    }
-    public static Object toChar(int v){
-        return (char)v;
-    }
+    
+    @Deprecated
     public static Object[] DataVal(Object[] arg){
         Object[] obj=null;
         int len=arg.length&~1;
@@ -368,7 +482,7 @@ public class Ref {
         Class[] tp;
         Object oc=null;
         if(!g_Classmap.containsKey(c.getName()))
-            c=getClassName(c.getName());
+            c=Class(c.getName());
         Map<String,Method> p;
         Method f=null;
         if(!g_Methodmap.containsKey(c)){
@@ -415,7 +529,7 @@ public class Ref {
     }
     
     public static Field[] Fields(String classname){
-        return Fields(getClassName(classname));
+        return Fields(Class(classname));
     }
     
     public static Method[] Methods(Class s){
@@ -424,7 +538,7 @@ public class Ref {
     }
     
     public static Method[] Methods(String classname){
-       return Methods(getClassName(classname));
+       return Methods(Class(classname));
     }
     
     public static Constructor[] Constructors(Class s){
@@ -433,7 +547,7 @@ public class Ref {
     }
     
     public static Constructor[] Constructors(String classname){
-        return Constructors(getClassName(classname));
+        return Constructors(Class(classname));
     }
     
     public static Object Invoke(Method m,Object obj,Object[] list){
@@ -445,8 +559,59 @@ public class Ref {
         return null;
     }
     
+    public static Object ClassLoader(Object obj){
+        return obj.getClass().getClassLoader();
+    }
+    
+    public static void SetClassLoader(Object obj){
+        if(obj instanceof ClassLoader){
+            g_loader=(java.lang.ClassLoader) obj;
+        }
+    }
+    
+    
     public static Class SuperClass(Class class1){
         return class1.getSuperclass();
+    }
+    
+    public static Field getFieldWithString(Object obj,String name){
+        for(Field fd: obj.getClass().getDeclaredFields()){
+            if(fd.getType().getName().contains(name)){
+                return fd;
+            }
+        }
+        return null;
+    }
+    public static Field getFieldWithString(Class c,String name){
+        for(Field fd: c.getDeclaredFields()){
+            if(fd.getType().getName().contains(name)){
+                return fd;
+            }
+        }
+        return null;
+    }
+    
+    public static Object[] getMethodsWithString(Class c,String ret,String[] a){
+        List<Method> mlist=new ArrayList<>();
+        for(Method m:c.getDeclaredMethods()){
+            if(ret!=null)
+            if(!m.getGenericReturnType().getTypeName().contains(ret)){
+                continue;
+            }
+            Class[] types=m.getParameterTypes();
+            if(a.length!=types.length)continue;
+            boolean cont=false;
+            for(int i=0;i<a.length;i++){
+                if(!types[i].getTypeName().contains(a[i]))
+                {
+                    cont=true;
+                    break;
+                }
+            }
+            if(cont)continue;
+            mlist.add(m);
+        }
+        return mlist.toArray();
     }
     
 }

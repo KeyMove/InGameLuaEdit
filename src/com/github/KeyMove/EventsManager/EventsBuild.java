@@ -214,6 +214,23 @@ public class EventsBuild {
         }
     }
     
+    public static void SaveFile(String FileName,File path){
+         try {
+             FileOutputStream op;
+             try (InputStream ip = EventsBuild.class.getResourceAsStream(FileName)) {
+                 op = new FileOutputStream(path);
+                 byte[] buff=new byte[1024];
+                 int len;
+                 while((len=ip.read(buff))!=-1){
+                     op.write(buff, 0, len);
+                 }
+             }
+                op.close();
+        } catch (IOException ex) {
+            Logger.getLogger(EventsBuild.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public static void BuildPacketInFile(Plugin plugin){
         File f=new File(plugin.getDataFolder(),"Ext\\");
         if(!f.exists()){
