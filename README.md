@@ -4,7 +4,7 @@
 ```lua
 		material = luajava.bindClass("org.bukkit.Material")
 ```
-#		使用luajava.newInstance新建类实例/<br>
+#		使用luajava.newInstance新建类实例
 ```lua
 		paper=luajava.newInstance("org.bukkit.inventory.ItemStack",material.PAPER)
 ```
