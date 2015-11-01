@@ -134,8 +134,146 @@
 ```lua
 	  Tools.LoadAPI("RedisPipe")
 ```
-
-
-
+##Ref:
+###1.加载类
+	  Ref:Class(类名)
+	  
+	  参数: 
+	  类名称字符串
+	  
+	  返回: 
+	  类
+	  
+	  说明:
+	  跟luajava.bindClass用法相同 对于KCauldron的兼容性更好
+	  
+	  用例:
+```lua
+	  Ref:Class("org.bukkit.Bukkit")
+```
+###2.构建类实例
+	  Ref:getNewClass(类名)
+	  
+	  参数: 
+	  类名称字符串
+	  
+	  返回: 
+	  类实例
+	  
+	  用例:
+```lua
+	  Ref:getNewClass("org.bukkit.inventory.ItemStack")
+```
+###3.新建类实例
+	  Ref:New(类名,{参数列表})
+	  
+	  参数: 
+	  类名称字符串 或者 类对象
+	  参数列表 可选
+	  
+	  返回: 
+	  类
+	  
+	  
+	  用例:
+```lua
+	  mate = Ref:Class("org.bukkit.Material")
+	  item=Ref:New("org.bukkit.inventory.ItemStack",{mate.STONE})
+	  
+	  ItemStack=Ref:Class("org.bukkit.inventory.ItemStack")
+	  item=Ref:New(ItemStack,{mate.STONE})
+```
+###4.新建类数组
+	  Ref:ClassArray(类名,数量)
+	  
+	  参数: 
+	  类名称字符串 或者 类对象
+	  参数列表 可选
+	  
+	  返回: 
+	  类数组
+	  
+	  
+	  用例:
+```lua
+	  itemarray=Ref:ClassArray("org.bukkit.inventory.ItemStack",2)
+	  
+	  ItemStack=Ref:ClassArray("org.bukkit.inventory.ItemStack")
+	  itemarray=Ref:New(ItemStack,2)
+```
+###5.获取类字段
+	  Ref:getMembers(字段名称,对象)
+	  
+	  参数: 
+	  字段名称字符串
+	  类对象
+	  
+	  返回: 
+	  字段对象
+	  
+	  
+	  用例:
+```lua
+	  itemhandle=Ref:getMembers("handle",itemstack)
+```
+###6.设置类字段
+	  Ref:setMembers(字段名称,目标实例,值)
+	  
+	  参数: 
+	  字段名称字符串
+	  目标实例 要修改字段的实例
+	  值对象
+	  
+	  返回: 
+	  字段对象
+	  
+	  
+	  用例:
+```lua
+	  Ref:setMembers("handle",itemstack,newhandle)
+```
+###7.获取类型枚举
+	  Ref:getType(类型名称)
+	  
+	  参数: 
+	  类型名称字符串
+	  
+	  返回: 
+	  类型枚举
+	  
+	  说明:
+		类型有:
+			Object,
+			Double,
+			Float,
+			Short,
+			Byte,
+			Char,
+			Long,
+			Int,
+			Bool,
+		lua属于弱类型在调用部分方法时必须要使用对应的类型
+	  
+	  用例:
+```lua
+	  Ref:getType("Short")
+```
+###8.生成对象类型数组
+	  Ref:Objects(类型名称)
+	  
+	  参数: 
+	  参数与类型 数组
+	  
+	  返回: 
+	  对象数组
+	  
+	  说明:
+		配合Ref:getType使用生成参数数组
+		lua属于弱类型在调用部分方法时必须要使用对应的类型
+	  
+	  用例:
+```lua
+	  Ref:Objects({Ref:getType("Short"),1,2,Ref:getType("float"),1.23})
+```
 
 
