@@ -33,7 +33,7 @@
 	  
 	  用例:
 ```lua
-	  Tools.Command(“test”,function(e,args)
+	  Tools.Command("test",function(e,args)
 	  print("test")
 	  end)
 ```
