@@ -97,19 +97,19 @@ public class Ref {
         return null;
     }
     
-    public static Class[] ClassArray(String name,int len){
+    public static Object ClassArray(String name,int len){
         Class s=Class(name);
         if(s!=null)
         {
-            return (java.lang.Class[]) java.lang.reflect.Array.newInstance(s, len);
+            return java.lang.reflect.Array.newInstance(s, len);
         }
         return null;
     }
     
-    public static Class[] ClassArray(Class s,int len){
+    public static Object ClassArray(Class s,int len){
         if(s!=null)
         {
-            return (java.lang.Class[]) java.lang.reflect.Array.newInstance(s, len);
+            return java.lang.reflect.Array.newInstance(s, len);
         }
         return null;
     }
