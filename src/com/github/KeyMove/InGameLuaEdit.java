@@ -9,6 +9,7 @@ package com.github.KeyMove;
 import com.github.KeyMove.EventsManager.EventManger;
 import com.github.KeyMove.EventsManager.EventsBuild;
 import static com.github.KeyMove.EventsManager.EventsBuild.GetEvents;
+import static com.github.KeyMove.EventsManager.EventsBuild.LoadEvents;
 import com.github.KeyMove.EventsManager.Tools.Ref;
 import java.io.File;
 import static java.lang.System.out;
@@ -16,7 +17,6 @@ import lib.org.luaj.vm2.lib.jse.JsePlatform;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.luaj.vm2.Globals;
@@ -74,13 +74,15 @@ public class InGameLuaEdit extends JavaPlugin{
     
     @Override
     public void onEnable() {
-        eventManger=GetEvents(this);
+        eventManger=LoadEvents(this);
+        out.print("Bytecode Load!");
+        out.print(eventManger);
         eventManger.Setup(this);
         LuaTools=new LuaVMTools(this, eventManger);
-        out.print(eventManger);
+        //out.print(eventManger);
         getServer().getPluginManager().registerEvents(eventManger, this);
         out.print(this.getClass().getTypeName());
-        EventsBuild.GetPacketIn(this);
+        //EventsBuild.GetPacketIn(this);
         InitLuaVM();
         //out.print(Bukkit.class.getResource("event").getFile().replaceAll("%20", " "));
     }
@@ -110,7 +112,7 @@ public class InGameLuaEdit extends JavaPlugin{
                         HandlerList.unregisterAll(eventManger);
                         eventManger.ClearEvent();
                         LuaVMTools.ReInit();
-                        eventManger=GetEvents(this);
+                        eventManger=LoadEvents(this);
                         eventManger.Setup(this);
                         LuaTools=new LuaVMTools(this, eventManger);
                         getServer().getPluginManager().registerEvents(eventManger, this);
@@ -119,6 +121,10 @@ public class InGameLuaEdit extends JavaPlugin{
                         out.print("rebuild OK!");
                         break;
                 }
+            }
+            else{
+                sender.sendMessage("[InGameLuaEdit] /lua restart - 重新加载lua文件");
+                sender.sendMessage("[InGameLuaEdit] /lua rebuild - 重新构造所有配置");
             }
         }
         return true;

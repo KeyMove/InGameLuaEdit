@@ -14,6 +14,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -81,13 +83,17 @@ final public class 类解析器 {
         String Nop="Nop";
     }
     public boolean 解析文件(File f){
-        FileInputStream fs = null;
+        InputStream fs = null;
         try {
             fs=new FileInputStream(f);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(类解析器.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
+        return 解析(fs);
+    }
+    public boolean 解析(InputStream fs){
+        
         魔数=readbyte(4, fs);
         编译器版本=readbyte(4, fs);
         读取常量表(fs);
@@ -117,7 +123,7 @@ final public class 类解析器 {
         return true;
     }
     public boolean 保存文件(File f){
-        FileOutputStream fs;
+        OutputStream fs;
         try {
             if(!f.exists())
             {
@@ -135,6 +141,9 @@ final public class 类解析器 {
             Logger.getLogger(类解析器.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
+        return 保存(fs);
+    }
+    public boolean 保存(OutputStream fs){
         writeByte(4, 魔数, fs);
         writeByte(4, 编译器版本, fs);
         保存常量表(fs);
@@ -288,7 +297,7 @@ final public class 类解析器 {
         public 常量(int type) {
             this.类型=type;
         }
-        public void write(FileOutputStream fs){
+        public void write(OutputStream fs){
             writeInt(1, 类型, fs);
         }
     }
@@ -296,7 +305,7 @@ final public class 类解析器 {
     public class UTF8常量 extends 常量{
         int 字符串长度;
         String 字符串;
-        public UTF8常量(FileInputStream fs) {
+        public UTF8常量(InputStream fs) {
             super(常量类型.UTF8);
             this.字符串长度=readint(2, fs);
             this.字符串=readString(this.字符串长度, fs);
@@ -307,7 +316,7 @@ final public class 类解析器 {
             this.字符串长度=len;
         }
         @Override
-        public void write(FileOutputStream fs) {
+        public void write(OutputStream fs) {
             super.write(fs); //To change body of generated methods, choose Tools | Templates.
             writeInt(2, this.字符串长度, fs);
             writeString(this.字符串长度, 字符串, fs);
@@ -316,7 +325,7 @@ final public class 类解析器 {
     
     public class 整型常量 extends 常量{
         int 值;
-        public 整型常量(FileInputStream fs) {
+        public 整型常量(InputStream fs) {
             super(常量类型.Integer);
             this.值=readint(4, fs);
         }
@@ -325,7 +334,7 @@ final public class 类解析器 {
             this.值 = 值;
         }
         @Override
-        public void write(FileOutputStream fs) {
+        public void write(OutputStream fs) {
             super.write(fs); //To change body of generated methods, choose Tools | Templates.
             writeInt(4, this.值, fs);
         }
@@ -333,7 +342,7 @@ final public class 类解析器 {
     
     public class 浮点常量 extends 常量{
         float 值;
-        public 浮点常量(FileInputStream fs) {
+        public 浮点常量(InputStream fs) {
             super(常量类型.Float);
             this.值=readfloat(fs);
         }
@@ -342,7 +351,7 @@ final public class 类解析器 {
             this.值 = 值;
         }
         @Override
-        public void write(FileOutputStream fs) {
+        public void write(OutputStream fs) {
             super.write(fs); //To change body of generated methods, choose Tools | Templates.
             writefloat(4, this.值, fs);
         }
@@ -350,7 +359,7 @@ final public class 类解析器 {
     
     public class 长整型常量 extends 常量{
         long 值;
-        public 长整型常量(FileInputStream fs) {
+        public 长整型常量(InputStream fs) {
             super(常量类型.Long);
             this.值=readlong(8, fs);
         }
@@ -359,7 +368,7 @@ final public class 类解析器 {
             this.值 = 值;
         }
         @Override
-        public void write(FileOutputStream fs) {
+        public void write(OutputStream fs) {
             super.write(fs); //To change body of generated methods, choose Tools | Templates.
             writeLong(8, this.值, fs);
         }
@@ -367,7 +376,7 @@ final public class 类解析器 {
     
     public class 双精度浮点常量 extends 常量{
         double 值;
-        public 双精度浮点常量(FileInputStream fs) {
+        public 双精度浮点常量(InputStream fs) {
             super(常量类型.Double);
             this.值=readdouble(fs);
         }
@@ -376,7 +385,7 @@ final public class 类解析器 {
             this.值 = 值;
         }
         @Override
-        public void write(FileOutputStream fs) {
+        public void write(OutputStream fs) {
             super.write(fs); //To change body of generated methods, choose Tools | Templates.
             writeDouble(8, this.值, fs);
         }
@@ -384,7 +393,7 @@ final public class 类解析器 {
     
     public class 类常量 extends 常量{
         int 索引;
-        public 类常量(FileInputStream fs) {
+        public 类常量(InputStream fs) {
             super(常量类型.Class);
             this.索引=readint(2, fs);
         }
@@ -393,7 +402,7 @@ final public class 类解析器 {
             this.索引 = 索引;
         }
         @Override
-        public void write(FileOutputStream fs) {
+        public void write(OutputStream fs) {
             super.write(fs); //To change body of generated methods, choose Tools | Templates.
             writeInt(2, this.索引, fs);
         }
@@ -401,7 +410,7 @@ final public class 类解析器 {
     
     public class 字符串常量 extends 常量{
         int 索引;
-        public 字符串常量(FileInputStream fs) {
+        public 字符串常量(InputStream fs) {
             super(常量类型.String);
             this.索引=readint(2, fs);
         }
@@ -410,7 +419,7 @@ final public class 类解析器 {
             this.索引 = 索引;
         }
         @Override
-        public void write(FileOutputStream fs) {
+        public void write(OutputStream fs) {
             super.write(fs); //To change body of generated methods, choose Tools | Templates.
             writeInt(2, this.索引, fs);
         }
@@ -419,7 +428,7 @@ final public class 类解析器 {
     public class 字段常量 extends 常量{
         int 类索引;
         int 名称和类型索引;
-        public 字段常量(FileInputStream fs) {
+        public 字段常量(InputStream fs) {
             super(常量类型.Fieldref);
             this.类索引=readint(2, fs);
             this.名称和类型索引=readint(2, fs);
@@ -430,7 +439,7 @@ final public class 类解析器 {
             this.名称和类型索引 = 名称和类型索引;
         }
         @Override
-        public void write(FileOutputStream fs) {
+        public void write(OutputStream fs) {
             super.write(fs); //To change body of generated methods, choose Tools | Templates.
             writeInt(2, this.类索引, fs);
             writeInt(2, this.名称和类型索引, fs);
@@ -439,7 +448,7 @@ final public class 类解析器 {
     public class 方法常量 extends 常量{
         int 类索引;
         int 名称和类型索引;
-        public 方法常量(FileInputStream fs) {
+        public 方法常量(InputStream fs) {
             super(常量类型.Methodref);
             this.类索引=readint(2, fs);
             this.名称和类型索引=readint(2, fs);
@@ -450,7 +459,7 @@ final public class 类解析器 {
             this.名称和类型索引 = 名称和类型索引;
         }
         @Override
-        public void write(FileOutputStream fs) {
+        public void write(OutputStream fs) {
             super.write(fs); //To change body of generated methods, choose Tools | Templates.
             writeInt(2, this.类索引, fs);
             writeInt(2, this.名称和类型索引, fs);
@@ -459,7 +468,7 @@ final public class 类解析器 {
     public class 接口方法常量 extends 常量{
         int 类索引;
         int 名称和类型索引;
-        public 接口方法常量(FileInputStream fs) {
+        public 接口方法常量(InputStream fs) {
             super(常量类型.InterfaceMethodref);
             this.类索引=readint(2, fs);
             this.名称和类型索引=readint(2, fs);
@@ -470,7 +479,7 @@ final public class 类解析器 {
             this.名称和类型索引 = 名称和类型索引;
         }
         @Override
-        public void write(FileOutputStream fs) {
+        public void write(OutputStream fs) {
             super.write(fs); //To change body of generated methods, choose Tools | Templates.
             writeInt(2, this.类索引, fs);
             writeInt(2, this.名称和类型索引, fs);
@@ -480,7 +489,7 @@ final public class 类解析器 {
         int 名称索引;
         int 类型索引;
 
-        public 名称与类型常量(FileInputStream fs) {
+        public 名称与类型常量(InputStream fs) {
             super(常量类型.NameAndType);
             this.名称索引=readint(2, fs);
             this.类型索引=readint(2, fs);
@@ -493,13 +502,13 @@ final public class 类解析器 {
         }
 
         @Override
-        public void write(FileOutputStream fs) {
+        public void write(OutputStream fs) {
             super.write(fs); //To change body of generated methods, choose Tools | Templates.
             writeInt(2, this.名称索引, fs);
             writeInt(2, this.类型索引, fs);
         }
     }
-    void 读取常量表(FileInputStream fs){
+    void 读取常量表(InputStream fs){
         常量数量=readint(2, fs);
         常量池=new ArrayList<>();
         常量池.add(常量数量);
@@ -527,7 +536,7 @@ final public class 类解析器 {
             }
         }
     }
-    void 保存常量表(FileOutputStream fs){
+    void 保存常量表(OutputStream fs){
         writeInt(2, 常量数量, fs);
         for(int i=1;i<常量数量;i++){
             常量 o=(常量) 常量池.get(i);
@@ -548,7 +557,7 @@ final public class 类解析器 {
             this.属性数量 = 属性数量;
             this.属性列表 = s;
         }
-        public 字段(FileInputStream fs) {
+        public 字段(InputStream fs) {
             this.访问权限=readint(2, fs);
             this.名称索引=readint(2, fs);
             this.描述索引=readint(2, fs);
@@ -558,7 +567,7 @@ final public class 类解析器 {
                 属性列表.add(new 属性(fs));
             }
         }
-        public void write(FileOutputStream fs){
+        public void write(OutputStream fs){
             writeInt(2, this.访问权限, fs);
             writeInt(2, this.名称索引, fs);
             writeInt(2, this.描述索引, fs);
@@ -581,7 +590,7 @@ final public class 类解析器 {
             this.属性数量 = 属性数量;
             this.属性列表 = s;
         }
-        public 方法(FileInputStream fs) {
+        public 方法(InputStream fs) {
             this.访问权限=readint(2, fs);
             this.名称索引=readint(2, fs);
             this.描述索引=readint(2, fs);
@@ -615,7 +624,7 @@ final public class 类解析器 {
             }
             return false;
         }
-        public void write(FileOutputStream fs){
+        public void write(OutputStream fs){
             writeInt(2, this.访问权限, fs);
             writeInt(2, this.名称索引, fs);
             writeInt(2, this.描述索引, fs);
@@ -661,7 +670,7 @@ final public class 类解析器 {
         int 属性索引;
         int 属性长度;
         byte[] 属性;
-        public 属性(FileInputStream fs) {
+        public 属性(InputStream fs) {
             this.属性索引=readint(2, fs);
             this.属性长度=readint(4, fs);
             this.属性=readbyte(this.属性长度, fs);
@@ -725,7 +734,7 @@ final public class 类解析器 {
             this.属性=ar.getarray();
             return true;
         }
-        public void write(FileOutputStream fs){
+        public void write(OutputStream fs){
             writeInt(2, this.属性索引, fs);
             writeInt(4, this.属性.length, fs);
             writeByte(this.属性.length, this.属性, fs);
@@ -1004,7 +1013,7 @@ final public class 类解析器 {
     
     
     
-        static byte[] readbyte(int len,FileInputStream fs){
+        static byte[] readbyte(int len,InputStream fs){
             byte[] b=new byte[len];
             for(int i=0;i<len;i++)
                 try {
@@ -1014,7 +1023,7 @@ final public class 类解析器 {
                 }
             return b;
         }
-        static int readint(int len,FileInputStream fs){
+        static int readint(int len,InputStream fs){
             int c=0;
             for(int i=0;i<len;i++)
                 try {
@@ -1025,7 +1034,7 @@ final public class 类解析器 {
                 }
             return c;
         }
-        static long readlong(int len,FileInputStream fs){
+        static long readlong(int len,InputStream fs){
             long c=0;
             for(int i=0;i<len;i++)
                 try {
@@ -1036,7 +1045,7 @@ final public class 类解析器 {
                 }
             return c;
         }
-        static float readfloat(FileInputStream fs){
+        static float readfloat(InputStream fs){
             byte[] c=new byte[4];
             for(int i=0;i<4;i++)
                 try {
@@ -1046,7 +1055,7 @@ final public class 类解析器 {
                 }
             return (float)((c[0]<<24)|(c[1]<<16)|(c[2]<<8)|(c[3]));
         }
-        static double readdouble(FileInputStream fs){
+        static double readdouble(InputStream fs){
             byte[] c=new byte[8];
             for(int i=0;i<8;i++)
                 try {
@@ -1056,7 +1065,7 @@ final public class 类解析器 {
                 }
             return (float)((c[0]<<56)|(c[1]<<48)|(c[2]<<40)|(c[3]<<32)|(c[4]<<24)|(c[5]<<16)|(c[6]<<8)|(c[7]));
         }
-        static String readString(int len,FileInputStream fs){
+        static String readString(int len,InputStream fs){
             String c;
             byte[] b=new byte[len];
             for(int i=0;i<len;i++)
@@ -1068,14 +1077,14 @@ final public class 类解析器 {
             c=new String(b);
             return c;
         }
-        static void writeByte(int len,byte[] b,FileOutputStream fs){
+        static void writeByte(int len,byte[] b,OutputStream fs){
                 try {
                     fs.write(b, 0, len);
                 } catch (IOException ex) {
                     Logger.getLogger(类解析器.class.getName()).log(Level.SEVERE, null, ex);
                 }
         }
-        static void writeInt(int len,int val,FileOutputStream fs){
+        static void writeInt(int len,int val,OutputStream fs){
             byte[] b=new byte[len];
             int rl=len*8-8;
             for(int i=0;i<len;i++)
@@ -1089,7 +1098,7 @@ final public class 类解析器 {
                     Logger.getLogger(类解析器.class.getName()).log(Level.SEVERE, null, ex);
                 }
         }
-        static void writeLong(int len,long val,FileOutputStream fs){
+        static void writeLong(int len,long val,OutputStream fs){
             byte[] b=new byte[len];
             int rl=len*8-8;
             for(int i=0;i<len;i++)
@@ -1103,7 +1112,7 @@ final public class 类解析器 {
                     Logger.getLogger(类解析器.class.getName()).log(Level.SEVERE, null, ex);
                 }
         }
-        static void writeString(int len,String val,FileOutputStream fs){
+        static void writeString(int len,String val,OutputStream fs){
             byte[] b=new byte[len];
             try {
                     fs.write(val.getBytes(),0,len);
@@ -1111,7 +1120,7 @@ final public class 类解析器 {
                     Logger.getLogger(类解析器.class.getName()).log(Level.SEVERE, null, ex);
                 }
         }
-        static void writefloat(int len,float val,FileOutputStream fs){
+        static void writefloat(int len,float val,OutputStream fs){
             int v=Float.floatToIntBits(val);
             int rl=32;
             while(rl!=0){
@@ -1123,7 +1132,7 @@ final public class 类解析器 {
                 }
             }
         }
-        static void writeDouble(int len,double val,FileOutputStream fs){
+        static void writeDouble(int len,double val,OutputStream fs){
             long v=Double.doubleToLongBits(val);
             int rl=64;
             while(rl!=0){
@@ -1145,5 +1154,18 @@ final public class 类解析器 {
             return null;
         }
         return dc;
-    }
+        }
+        static public Class<?> 动态加载类(ClassLoader cl,byte[] bytecode){
+        Class<?> classv=new ClassLoader(cl) {
+            public Class<?> loadClass(byte [] code) {
+                return super.defineClass(code, 0, code.length);
+            }
+        }.loadClass(bytecode);
+        return classv;
+        }
+        class defLoader extends ClassLoader{
+            public Class<?> Load(String name,byte[] bytecode){
+                return defineClass(name, bytecode, 0, bytecode.length);
+            }
+        }
 }

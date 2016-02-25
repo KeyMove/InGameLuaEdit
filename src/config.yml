@@ -1,3 +1,5 @@
+PacketEvent: true
+Log: true
 UseEventsList:
     - 'BlockBreakEvent'
     - 'BlockBurnEvent'

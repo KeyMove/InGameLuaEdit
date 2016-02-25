@@ -7,10 +7,12 @@
 package com.github.KeyMove.EventsManager;
 
 import com.github.KeyMove.EventsManager.Tools.类解析器;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import static java.lang.System.out;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -37,6 +39,7 @@ public class EventsBuild {
     static Class PacketHookClass=PacketHookBase.class;
     static boolean isPacketLoad=false;
     static String PacketInListenerName;
+    static boolean log=true;
     public static Class LoadClassFile(String filepath,ClassLoader cloader){
         Class desClass=null;
         String classname=filepath.substring(filepath.lastIndexOf("\\")+1, filepath.lastIndexOf("."));
@@ -49,7 +52,7 @@ public class EventsBuild {
             URLClassLoader loader=new URLClassLoader(path,cloader);
             desClass=loader.loadClass(classname);
         } catch (MalformedURLException | ClassNotFoundException ex) {
-            out.print(ex);
+            Log(ex);
         }
         return desClass;
     }
@@ -76,7 +79,7 @@ public class EventsBuild {
                 }
             }  
         } catch (IOException e) {  
-            out.print(e);
+            Log(e);
         }  
         return l;  
     }
@@ -110,7 +113,7 @@ public class EventsBuild {
                 }
             }  
         } catch (IOException e) {  
-            out.print(e);
+            Log(e);
         }  
         return l;  
     }
@@ -129,8 +132,8 @@ public class EventsBuild {
                 if(value.contains("Listener")&&!value.contains(";"))
                 {
                         builder.替换指定UTF8常量(value,PacketInListenerName);
-                        out.print(value);
-                        out.print(PacketInListenerName);
+                        Log(value);
+                        Log(PacketInListenerName);
                         continue;
                 }
                 if(path!=null){
@@ -139,11 +142,11 @@ public class EventsBuild {
                 }
                 else{
                     path=value.substring(value.indexOf("net/minecraft/server/")+21, value.lastIndexOf('/'));
-                    out.print("net:"+path);
+                    Log("net:"+path);
                     newpath=value.replace(path, ver);
                     builder.替换指定UTF8常量(value, newpath);
-                    out.print(value);
-                    out.print(newpath);
+                    Log(value);
+                    Log(newpath);
                 }
             }else if(value.contains("org/bukkit/craftbukkit/")){
                 if(path!=null){
@@ -152,19 +155,67 @@ public class EventsBuild {
                 }
                 else{
                     path=value.substring(value.indexOf("org/bukkit/craftbukkit/")+23, value.lastIndexOf('/'));
-                    out.print("org:"+path);
+                    Log("org:"+path);
                     newpath=value.replace(path, ver);
                     builder.替换指定UTF8常量(value, newpath);
-                    out.print(value);
-                    out.print(newpath);
+                    Log(value);
+                    Log(newpath);
                 }
             }
         }
         builder.保存文件(f);
     }
     
+    static void AddAllPacketEvent(InputStream f,OutputStream o){
+        类解析器 builder=new 类解析器();
+        builder.解析(f);
+        List<String> utf8list=builder.获取所有UTF8常量();
+        String ver=Bukkit.getServer().getClass().getPackage().getName();
+        ver=ver.substring(ver.lastIndexOf('.')+1);
+        String path=null;
+        for(String value:utf8list){
+            String newpath;
+            if(value.contains("net/minecraft/server/"))
+            {
+                if(value.contains("Listener")&&!value.contains(";"))
+                {
+                        builder.替换指定UTF8常量(value,PacketInListenerName);
+                        Log(value);
+                        Log(PacketInListenerName);
+                        continue;
+                }
+                if(path!=null){
+                    newpath=value.replace(path, ver);
+                    builder.替换指定UTF8常量(value, newpath);
+                }
+                else{
+                    path=value.substring(value.indexOf("net/minecraft/server/")+21, value.lastIndexOf('/'));
+                    Log("net:"+path);
+                    newpath=value.replace(path, ver);
+                    builder.替换指定UTF8常量(value, newpath);
+                    Log(value);
+                    Log(newpath);
+                }
+            }else if(value.contains("org/bukkit/craftbukkit/")){
+                if(path!=null){
+                    newpath=value.replace(path, ver);
+                    builder.替换指定UTF8常量(value, newpath);
+                }
+                else{
+                    path=value.substring(value.indexOf("org/bukkit/craftbukkit/")+23, value.lastIndexOf('/'));
+                    Log("org:"+path);
+                    newpath=value.replace(path, ver);
+                    builder.替换指定UTF8常量(value, newpath);
+                    Log(value);
+                    Log(newpath);
+                }
+            }
+        }
+        builder.保存(o);
+    }
+    
     static void AddAllEvent(File f,List<String> str){
-        out.print("开始查找事件");
+        Log("开始查找事件");
         List<String> AllEvents=getPacketAllClass("event");
         类解析器 builder=new 类解析器();
         builder.解析文件(f);
@@ -173,11 +224,11 @@ public class EventsBuild {
         List<Object> attList;
         类解析器.局部变量属性 tempvar;
         int count=0;
-        out.print("开始加载事件");
+        Log("开始加载事件");
         for(String name:AllEvents){
             String value=name.substring(name.lastIndexOf('/')+1);
             if(str.indexOf(value)!=-1){
-                out.print("加载"+value);
+                Log("加载"+value);
                 code=(类解析器.代码属性) method.寻找属性(类解析器.静态属性列表.Code);
                 attList=code.寻找属性(类解析器.静态属性列表.LocalVariableTable);
                 tempvar=(类解析器.局部变量属性) attList.get(attList.size()-1);
@@ -196,6 +247,41 @@ public class EventsBuild {
             }
         }
         builder.保存文件(f);
+    }
+    
+    static void AddAllEvent(InputStream f,OutputStream fo,List<String> str){
+        Log("开始查找事件");
+        List<String> AllEvents=getPacketAllClass("event");
+        类解析器 builder=new 类解析器();
+        builder.解析(f);
+        类解析器.方法 method=builder.获取方法("Z");
+        类解析器.代码属性 code;
+        List<Object> attList;
+        类解析器.局部变量属性 tempvar;
+        int count=0;
+        Log("开始加载事件");
+        for(String name:AllEvents){
+            String value=name.substring(name.lastIndexOf('/')+1);
+            if(str.indexOf(value)!=-1){
+                Log("加载"+value);
+                code=(类解析器.代码属性) method.寻找属性(类解析器.静态属性列表.Code);
+                attList=code.寻找属性(类解析器.静态属性列表.LocalVariableTable);
+                tempvar=(类解析器.局部变量属性) attList.get(attList.size()-1);
+                method.设置方法名称("A"+count);
+                method.设置方法返回值与参数(null,name);
+                code.字节码[2]=(byte)(count/256);
+                code.字节码[3]=(byte)(count%256);
+                tempvar.设置局部变量属性("e", name);
+                attList.set(attList.size()-1, tempvar);
+                code.设置属性(类解析器.静态属性列表.LocalVariableTable, attList);
+                method.设置属性(类解析器.静态属性列表.Code, code);
+                if(count!=0)
+                    builder.添加方法(method);
+                count++;
+                method=method.克隆();
+            }
+        }
+        builder.保存(fo);
     }
     
     public static void SaveFile(Plugin plugin,String FileName,String SavePath){
@@ -267,8 +353,60 @@ public class EventsBuild {
             SaveFile(plugin, "config.yml", "Ext\\config.yml");
         YamlConfiguration config=YamlConfiguration.loadConfiguration(configfile);
         UseEventsList=config.getStringList("UseEventsList");
-        out.print("事件列表长度"+UseEventsList.size());
+        Log("事件列表长度"+UseEventsList.size());
         AddAllEvent(f, UseEventsList);
+    }
+    
+    public static void LoadPacketEvents(Plugin plugin){
+        PacketInList=getPacketInClass();
+        for(String v:PacketInList)
+            if(v.contains("Listener"))
+            {
+                isPacketLoad=true;
+                PacketInListenerName=v;
+                Log(v);
+                break;
+            }
+        if(!isPacketLoad){
+            Log("未能注册包");
+            return;
+        }
+        InputStream ip=plugin.getResource("PacketData.dat");
+        ByteArrayOutputStream bo=new ByteArrayOutputStream();
+        AddAllPacketEvent(ip, bo);
+        try {
+            bo.close();
+            ip.close();
+            PacketHookClass=类解析器.动态加载类(plugin.getClass().getClassLoader(), bo.toByteArray());
+        } catch (IOException ex) {
+            Logger.getLogger(EventsBuild.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Log(PacketHookClass);
+    }
+    
+    public static EventManger LoadEvents(Plugin plugin){
+        File configfile=new File(plugin.getDataFolder(),"config.yml");
+        if(!configfile.exists())
+            SaveFile(plugin, "config.yml", "config.yml");
+        YamlConfiguration config=YamlConfiguration.loadConfiguration(configfile);
+        UseEventsList=config.getStringList("UseEventsList");
+        log=config.getBoolean("Log");
+        if(config.getBoolean("PacketEvent")){
+            LoadPacketEvents(plugin);
+        }
+        InputStream ip=plugin.getResource("ClassData.dat");
+        ByteArrayOutputStream bo=new ByteArrayOutputStream();
+        Log("事件列表长度"+UseEventsList.size());
+        AddAllEvent(ip,bo, UseEventsList);
+        try {
+            bo.close();
+            ip.close();
+            EventManger obj=(EventManger)类解析器.动态加载类(plugin.getClass().getClassLoader(), bo.toByteArray()).newInstance();
+            return obj;
+        } catch (InstantiationException | IllegalAccessException | IOException ex) {
+            Logger.getLogger(EventsBuild.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
     
     public static PacketHookBase newPacketHook(){
@@ -290,11 +428,11 @@ public class EventsBuild {
             {
                 isPacketLoad=true;
                 PacketInListenerName=v;
-                out.print(v);
+                Log(v);
                 break;
             }
         if(!isPacketLoad){
-            out.print("未能注册包");
+            Log("未能注册包");
             return;
         }
         if(!f.exists()){
@@ -302,7 +440,7 @@ public class EventsBuild {
         }
         f=new File(plugin.getDataFolder(),"\\Ext\\PacketHook.class");
         PacketHookClass=LoadClassFile(f.getPath(),plugin.getClass().getClassLoader());
-        out.print(PacketHookClass);
+        Log(PacketHookClass);
     }
     
     public static EventManger GetEvents(Plugin plugin){
@@ -310,17 +448,22 @@ public class EventsBuild {
         File classfile=new File(plugin.getDataFolder(),"\\Ext\\Events.class");
         if(!classfile.exists()){
             BuildEventsFile(plugin, classfile);
+            GetPacketIn(plugin);
+            //plugin.getClass().getClassLoader()
         }
             Class EventClass=LoadClassFile(classfile.getPath(),plugin.getClass().getClassLoader());        
             if(EventClass!=null){
                 try {
                     EventsObject=(EventManger)EventClass.newInstance();
                 } catch (InstantiationException | IllegalAccessException ex) {
-                    out.print(ex);
+                    Log(ex);
                 }
             }
         return EventsObject;
     }
-    
+    public static void Log(Object obj){
+        if(log)
+            out.print("[InGameLuaEdit] "+obj);
+    }
     
 }
